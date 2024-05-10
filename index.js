@@ -1,6 +1,3 @@
-/* let nome;
-let xp; */
-
 const readline = require("readline");
 
 const leitor = readline.createInterface({
@@ -12,13 +9,12 @@ function getNome() {
   return new Promise((resolve) => {
     leitor.question("Digite o NOME do seu personagem: ", async (answer) => {
       let nome = answer.trim();
-      if (answer === '' || !/^(?=.*[a-zA-Z])[a-zA-Z0-9]+$/.test(answer)) {
-        console.log('NOME INVÁLIDO...');
+      if (answer === "" || !/^(?=.*[a-zA-Z])[a-zA-Z0-9]+$/.test(answer)) {
+        console.log("NOME INVÁLIDO...");
         await getNome();
       }
       resolve(nome);
     });
-    
   });
 }
 
@@ -33,7 +29,19 @@ function getXp() {
         resolve(xp);
       }
     });
-    
+  });
+}
+
+function novoPersonagem() {
+  return new Promise((resolve) => {
+    leitor.question("Digite S ou N :  ", async (answer) => {
+      let resp = answer.trim();
+      if (!["s", "n"].includes(resp.toLowerCase())) {
+        console.log("RESPOSTA INVÁLIDA...");
+        resp = await novoPersonagem();
+      }
+      resolve(resp);
+    });
   });
 }
 
@@ -48,8 +56,6 @@ function setNivel(xp) {
   else if (xp >= 10001) return "Radiante";
 }
 
-
-
 function getInfo(nome, nivel) {
   console.log();
   console.log("---------------------------------------------------");
@@ -58,20 +64,26 @@ function getInfo(nome, nivel) {
   console.log();
 }
 
-
-async function setFicha () {
+async function setFicha() {
   let nome = await getNome();
-  let xp = await getXp();  
-  let nivel = setNivel(xp);  
-  leitor.close();
+  let xp = await getXp();
+  let nivel = setNivel(xp);
   getInfo(nome, nivel);
-}
-function main() {
-  let ficha = true
-  // ARRUMAR
-  while(ficha){
-    console.log('DESEJA PREENCHER OUTRO PERSONAGEM E DESCARTAR O ATUAL?');
+  let ficha = true;
+  while (ficha) {
+    console.log("DESEJA PREENCHER OUTRO PERSONAGEM E DESCARTAR O ATUAL?");
+    let resp = await novoPersonagem();
+    if(["n"].includes(resp.toLowerCase())){
+      ficha = false;
+      leitor.close();
+    }else if(["s"].includes(resp.toLowerCase())){
+      setFicha()
+    }
   }
+}
+
+async function main() {
+  setFicha();
 }
 
 main();
